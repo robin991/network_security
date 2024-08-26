@@ -7,12 +7,13 @@ from networksecurity.logger.logger import logging
 from networksecurity.entity.artifact_entity import DataTransformationArtifact,ModelTrainerArtifact
 from networksecurity.entity.config_entity import ModelTrainerConfig
 
-#from xgboost import XGBClassifier
+# performing the classification using this:
+from xgboost import XGBClassifier
 
 from networksecurity.utils.ml_utils.model.estimator import NetworkModel
 from networksecurity.utils.main_utils.utils import save_object,load_object
 from networksecurity.utils.main_utils.utils import load_numpy_array_data
-#from networksecurity.utils.ml_utils.metric.classification_metric import get_classification_score
+from networksecurity.utils.ml_utils.metric.classification_metric import get_classification_score
 
 
 
@@ -71,19 +72,21 @@ class ModelTrainer:
             if diff>self.model_trainer_config.overfitting_underfitting_threshold:
                 raise Exception("Model is not good try to do more experimentation.")
 
+            # load the preprocessing object
             preprocessor = load_object(file_path=self.data_transformation_artifact.transformed_object_file_path)
             
             model_dir_path = os.path.dirname(self.model_trainer_config.trained_model_file_path)
             os.makedirs(model_dir_path,exist_ok=True)
             Network_Model = NetworkModel(preprocessor=preprocessor,model=model)
+            # saving the final model
             save_object(self.model_trainer_config.trained_model_file_path, obj=Network_Model)
 
-            #model trainer artifact
+            #model trainer artifact : pass on the value
 
             model_trainer_artifact = ModelTrainerArtifact(trained_model_file_path=self.model_trainer_config.trained_model_file_path, 
             train_metric_artifact=classification_train_metric,
             test_metric_artifact=classification_test_metric)
             logging.info(f"Model trainer artifact: {model_trainer_artifact}")
-            return model_trainer_artifact
+            return model_trainer_artifact # returning the artifact
         except Exception as e:
             raise NetworkSecurityException(e,sys)
