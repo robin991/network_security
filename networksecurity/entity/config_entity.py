@@ -7,6 +7,7 @@ print(training_pipeline.ARTIFACT_DIR)
 
 class TrainingPipelineConfig:
     def __init__(self,timestamp=datetime.now()):
+        # creating 4 variables using CONSTANT module : pipeline name, artifact name, artifact directory name, timestamp
         timestamp=timestamp.strftime("%m_%d_%Y_%H_%M_%S")
         self.pipeline_name=training_pipeline.PIPELINE_NAME
         self.artifact_name=training_pipeline.ARTIFACT_DIR
@@ -80,5 +81,14 @@ class ModelEvaluationConfig:
         self.change_threshold = training_pipeline.MODEL_EVALUATION_CHANGED_THRESHOLD_SCORE
     
 class ModelPusherConfig:
-     def __init__(self):
-        pass
+     def __init__(self,training_pipeline_config:TrainingPipelineConfig):
+        # initialising 3 variables : model evla directory, model file path, saved_model_path( final model is places), 
+        self.model_evaluation_dir: str = os.path.join(
+            training_pipeline_config.artifact_dir, training_pipeline.MODEL_PUSHER_DIR_NAME
+        )
+        self.model_file_path = os.path.join(self.model_evaluation_dir,training_pipeline.MODEL_FILE_NAME)
+        timestamp = round(datetime.now().timestamp())
+        self.saved_model_path=os.path.join(
+            training_pipeline.SAVED_MODEL_DIR,
+            f"{timestamp}",
+            training_pipeline.MODEL_FILE_NAME)
