@@ -23,6 +23,9 @@ class ModelEvaluation:
             raise NetworkSecurityException(e,sys)
         
     def initiate_model_evaluation(self)->ModelEvaluationArtifact:
+        '''
+        compare new an previous model over entire test and train dataset
+        '''
         try:
             valid_train_file_path = self.data_validation_artifact.valid_train_file_path
             valid_test_file_path = self.data_validation_artifact.valid_test_file_path
@@ -50,6 +53,7 @@ class ModelEvaluation:
 
 
             if not model_resolver.is_model_exists():
+                ''' this part will execute if model is not running for the first time'''
                 model_evaluation_artifact = ModelEvaluationArtifact(
                     is_model_accepted=is_model_accepted, 
                     improved_accuracy=None, 
@@ -74,6 +78,8 @@ class ModelEvaluation:
             latest_metric = get_classification_score(y_true, y_latest_pred)
 
             improved_accuracy = trained_metric.f1_score-latest_metric.f1_score
+
+            # accept or reject the model on the basis of threshold value
             if self.model_eval_config.change_threshold < improved_accuracy:
                 #0.02 < 0.03
                 is_model_accepted=True
